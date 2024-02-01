@@ -1,12 +1,7 @@
-FROM ubuntu:latest
+FROM alpine:3.19
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get -y update
-RUN apt-get -y install vim build-essential golang-go git libdrm-dev apt-file cmake libdirectfb-dev libgbm-dev wget python3 python3-setuptools python3-pip ninja-build libglib2.0-dev flex bison
-
-RUN apt-get -y dist-upgrade
-RUN apt-file update
+RUN apk update
+RUN apk add gcc g++ vim git cmake make bash python3 ninja py3-packaging linux-headers meson
 
 WORKDIR /usr/src
 RUN git clone https://github.com/libsdl-org/SDL.git -b SDL2
@@ -18,9 +13,30 @@ RUN make -j $(nproc)
 RUN make install
 
 WORKDIR /usr/src
-RUN wget https://download.qemu.org/qemu-8.2.0.tar.xz
-RUN tar xvJf qemu-8.2.0.tar.xz
+ADD https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/util-linux-2.39.3.tar.gz .
+RUN tar xf util-linux-2.39.3.tar.gz
+WORKDIR /usr/src/util-linux-2.39.3
+RUN ./configure --prefix=/usr/local --enable-static
+RUN make -j $(nproc)
+RUN make install
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/lib
+
+WORKDIR /usr/src
+ADD https://download.gnome.org/sources/glib/2.79/glib-2.79.1.tar.xz .
+RUN tar xf glib-2.79.1.tar.xz
+WORKDIR /usr/src/glib-2.79.1
+RUN meson setup build --prefer-static --prefix=/usr/local --default-library static
+WORKDIR /usr/src/glib-2.79.1/build
+RUN ninja
+RUN ninja install
+
+
+WORKDIR /usr/src
+ADD https://download.qemu.org/qemu-8.2.0.tar.xz .
+RUN tar xJf qemu-8.2.0.tar.xz
 WORKDIR /usr/src/qemu-8.2.0
-RUN ./configure --prefix=/usr
+RUN apk add pkgconfig
+RUN ./configure --prefix=/usr --static --target-list=x86_64-softmmu
 RUN make -j $(nproc)
 
