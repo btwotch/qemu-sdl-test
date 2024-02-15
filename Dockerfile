@@ -33,10 +33,9 @@ RUN ninja install
 
 
 WORKDIR /usr/src
-ADD https://download.qemu.org/qemu-8.2.0.tar.xz .
-RUN tar xJf qemu-8.2.0.tar.xz
-WORKDIR /usr/src/qemu-8.2.0
+ADD https://download.qemu.org/qemu-8.2.1.tar.xz .
+RUN tar xJf qemu-8.2.1.tar.xz
+WORKDIR /usr/src/qemu-8.2.1
 RUN apk add pkgconfig
 RUN ./configure --prefix=/usr --static --target-list=x86_64-softmmu
 RUN make -j $(nproc)
-
