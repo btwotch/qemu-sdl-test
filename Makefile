@@ -5,3 +5,4 @@ qemu-system-x86_64: Dockerfile
 	docker cp ${ID}:/usr/src/qemu-8.2.1/pc-bios/bios-256k.bin .
 	docker cp ${ID}:/usr/src/qemu-8.2.1/pc-bios/efi-e1000.rom .
 	docker cp ${ID}:/usr/src/qemu-8.2.1/pc-bios/kvmvapic.bin .
+	docker cp ${ID}:/usr/src/qemu-8.2.1/pc-bios/vgabios-stdvga.bin .
